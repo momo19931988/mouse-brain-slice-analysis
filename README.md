@@ -84,7 +84,9 @@ BiocManager::install(c("clusterProfiler", "org.Mm.eg.db", "enrichplot"))
 python gui/GUI.py
 ```
 This launches a Tkinter-based interface for **one-click batch analysis**, including preprocessing, normalization, and export.
-<img width="813" height="644" alt="image" src="https://github.com/user-attachments/assets/1849ff95-8ebd-4840-9a3a-3e0aa28711c3" />
+
+<img width="803" height="634" alt="image" src="https://github.com/user-attachments/assets/939777e8-e108-48ec-995f-13aa1d9d74ef" />
+
 
 
 ### Option 2: Run pipeline step by step
