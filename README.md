@@ -80,7 +80,7 @@ BiocManager::install(c("clusterProfiler", "org.Mm.eg.db", "enrichplot"))
 
 ## 🛠 Usage
 
-### Option 1: Run the GUI
+### Run the GUI
 ```bash
 python gui/GUI.py
 ```
@@ -91,12 +91,7 @@ This launches a Tkinter-based interface for **one-click batch processing**, incl
 
 
 
-### Option 2: Run pipeline step by step
-```bash
-python pipeline/step1.py
-python pipeline/step2.py
-...
-```
+### Workflow for automated alignment of mouse brain slice images.
 <img width="527" height="794" alt="image" src="https://github.com/user-attachments/assets/5c192985-107b-427c-87e9-6b534691923b" />
 
 
