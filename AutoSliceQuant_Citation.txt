@@ -1,0 +1,27 @@
+## 📖 Citation
+
+If you use **AutoSliceQuant** in your research, please cite it as:
+
+
+In addition, since AutoSliceQuant makes use of **napari** for ROI extraction and visualization,  
+please also cite napari as recommended by its authors:
+
+napari contributors (2019). napari: a multi-dimensional image viewer for Python.  
+Zenodo. https://doi.org/10.5281/zenodo.3555620  
+
+---
+
+### 📦 Software Dependencies
+
+When using AutoSliceQuant, please also acknowledge the key software libraries it builds upon:
+
+- **Python** (van Rossum, G. 1991. Python programming language)  
+- **R** (R Core Team. 2024. R: A language and environment for statistical computing)  
+- **scikit-image** (van der Walt, S. et al., 2014. scikit-image: image processing in Python)  
+- **NumPy** (Harris, C.R. et al., 2020. Array programming with NumPy)  
+- **pandas** (McKinney, W. 2010. Data structures for statistical computing in Python)  
+- **matplotlib** (Hunter, J.D. 2007. Matplotlib: A 2D graphics environment)  
+
+---
+
+
