@@ -29,7 +29,7 @@ project/
 ├── README.md         # Project introduction (this file)
 ├── requirements.txt  # Python dependencies
 ├── cellprofiler      # fluorescence signals coordinate extraction
-├── analysis.R        # R script for statistical analysis
+├── analysis.Rmd      # R script for statistical analysis
 ├── pipeline/         # Python scripts for image analysis
 │   ├── step1.py      # Channel separation
 │   ├── step2.py      # Background subtraction
@@ -127,7 +127,7 @@ source("ihc.cpproj")
 ```
 ### Downstream R analysis
 ```R
-source("analysis.R")
+source("analysis.Rmd")
 ```
 
 Results include:
@@ -151,7 +151,7 @@ Results include:
 See the [`docs/`](./docs) folder for:
 - Workflow diagrams (`workflow.png`)  
 - Example input/output images  
-- Additional technical notes  
+- Additional technical notes 
 
 ---
 
