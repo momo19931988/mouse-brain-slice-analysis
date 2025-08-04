@@ -96,10 +96,9 @@ This launches a Tkinter-based interface for **one-click batch processing**, incl
 python pipeline/step1.py
 python pipeline/step2.py
 ...
-
-<img width="527" height="794" alt="image" src="https://github.com/user-attachments/assets/fca4a7e6-e4a4-4f05-b3eb-aabe1234a17a" />
-
 ```
+<img width="527" height="794" alt="image" src="https://github.com/user-attachments/assets/5c192985-107b-427c-87e9-6b534691923b" />
+
 
 ### Downstream R analysis
 ```R
