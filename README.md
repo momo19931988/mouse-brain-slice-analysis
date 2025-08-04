@@ -110,11 +110,11 @@ Results include:
 
 ---
 
-## 📊 Example Workflow (will be updated)
+## 📊 Example Workflow 
 1. **Input:** Raw fluorescence images (`.tif`) from mouse brain slices  
 2. **Preprocessing:** Channel separation, background correction  
 3. **Alignment:** PCA-based slice rotation correction  
-4. **Quantification:** Intensity normalization & coordinate extraction  
+4. **Quantification:** Intensity normalization & coordinate extraction (Cellprofiler)
 5. **Analysis:** Group-level comparison (R)  
 6. **Output:** CSV files + annotated plots (example in `docs/example.png`)  
 
