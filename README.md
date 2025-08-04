@@ -114,9 +114,10 @@ This launches a Tkinter-based interface for **one-click batch processing**, incl
 
 
 
-
 ### Workflow for automated alignment of mouse brain slice images.
 <img width="527" height="794" alt="image" src="https://github.com/user-attachments/assets/5c192985-107b-427c-87e9-6b534691923b" />
+
+- This process consists of three main steps: 1. Contour extraction – the outline of the brain slice is identified from the raw image. 2. Point cloud generation and principal component extraction – the contour is transformed into a set of points, and principal component analysis (PCA) is applied to determine the primary (PC1) and secondary (PC2) axes of variation. 3.Rotation correction – brain slices are rotated according to the PC1 axis to align the long axis horizontally, ensuring consistent orientation across samples.
 
 ### Extract brain region coordinates(step7)
 <img width="882" height="587" alt="image" src="https://github.com/user-attachments/assets/86009998-1726-4d29-a167-21dd8aa37355" />
