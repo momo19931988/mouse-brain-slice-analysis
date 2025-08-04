@@ -1,4 +1,5 @@
-# 🧠 Automated Quantification of Fluorescence Signals in Mouse Brain Slices
+# 🧠 AutoSliceQuant 
+**Automated Quantification of Fluorescence Signals in Mouse Brain Slices**
 
 This repository provides a standardized image analysis pipeline for the quantification of fluorescence signals in mouse brain slices.
 The workflow integrates Python for preprocessing, image alignment, and data extraction with R for statistical analysis and visualization.
