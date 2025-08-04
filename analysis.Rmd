@@ -1,0 +1,499 @@
+---
+title: "ihcimage"
+output: html_document
+date: "2025-07-22"
+---
+
+```{r}
+library(dplyr)
+library(readr)
+library(sp)
+library(ggplot2)
+library(tidyr)
+
+# ==== 文件路径 ====
+wt_file <- "C:/2026/imagingpro/snpc_ana/WT/WTIdDAPI.csv"
+ko_file <- "C:/2026/imagingpro/snpc_ana/KO/KOIdDAPI.csv"
+region_file <- "C:/2026/imagingpro/Brain_Regions_SNPC.csv"
+output_plot <- "C:/2026/imagingpro/Regions_DAPI_Analysis.png"
+output_csv <- "C:/2026/imagingpro/Regions_DAPI_Analysis_Stats.csv"
+
+# ==== 读取数据 ====
+wt <- read_csv(wt_file)
+ko <- read_csv(ko_file)
+regions <- read_csv(region_file)
+
+# ==== 生成多个 SpatialPolygons ====
+region_list <- regions %>%
+  group_by(index) %>%
+  group_split()
+
+# 每个 index 对应一个 named list 元素
+region_polygons <- lapply(region_list, function(region_df) {
+  coords <- region_df %>% select(x = `axis-1`, y = `axis-0`)
+  SpatialPolygons(list(Polygons(list(Polygon(coords)), ID = as.character(region_df$index[1]))))
+})
+names(region_polygons) <- sapply(region_list, function(df) paste0("Region_", df$index[1]))
+
+# ==== 统计函数 ====
+calculate_stats_by_region <- function(df, label) {
+  results <- list()
+  coords <- df %>% select(x = Location_Center_X, y = Location_Center_Y)
+  points_sp <- SpatialPoints(coords)
+
+  for (i in seq_along(region_polygons)) {
+    region_name <- names(region_polygons)[i]
+    polygon_sp <- region_polygons[[i]]
+    inside <- !is.na(over(points_sp, polygon_sp))
+    inside_df <- df[inside, ]
+
+    total <- nrow(inside_df)
+    iba1_pos <- sum(inside_df$Children_idIba1_Count > 0)
+    hla_pos <- sum(inside_df$Children_idHLA_Count > 0)
+
+    iba1_ratio <- iba1_pos / total
+    hla_ratio <- hla_pos / total
+    hla_to_iba1 <- ifelse(iba1_pos > 0, hla_pos / iba1_pos, NA)
+
+    results[[region_name]] <- data.frame(
+      group = label,
+      region = region_name,
+      Iba1_Positive_Ratio = iba1_ratio,
+      HLA_Positive_Ratio = hla_ratio,
+      HLA_to_Iba1_Ratio = hla_to_iba1
+    )
+  }
+
+  do.call(rbind, results)
+}
+
+# ==== 计算 WT / KO ====
+res_wt <- calculate_stats_by_region(wt, "WT")
+res_ko <- calculate_stats_by_region(ko, "KO")
+
+combined <- bind_rows(res_wt, res_ko)
+
+# ==== 整理绘图数据 ====
+combined_long <- combined %>%
+  pivot_longer(cols = starts_with("Iba1"):starts_with("HLA_to"), names_to = "metric", values_to = "value")
+
+combined_long$metric <- factor(combined_long$metric,
+                          levels = c("Iba1_Positive_Ratio", "HLA_Positive_Ratio", "HLA_to_Iba1_Ratio"),
+                          labels = c("Iba1 Positive Ratio", "HLA Positive Ratio", "HLA / Iba1 Ratio"))
+
+# ==== 绘图 ====
+combined_long$group <- factor(combined_long$group, levels = c("WT", "KO"))
+
+p <- ggplot(combined_long, aes(x = group, y = value, fill = metric)) +
+  geom_bar(stat = "identity", position = position_dodge(), width = 0.7) +
+  geom_text(aes(label = round(value, 2)), 
+            position = position_dodge(width = 0.7), 
+            vjust = -0.5, size = 3) +
+  facet_wrap(~region) +
+  scale_fill_brewer(palette = "Set2", name = "Metric") +
+  labs(title = "SNPC",
+       x = "Group", y = "Ratio") +
+  theme_minimal(base_size = 14)
+
+ggsave(output_plot, p, width = 10, height = 6, dpi = 300)
+write_csv(combined, output_csv)
+
+cat("✅ 分区域图像已保存：", output_plot, "\n")
+cat("✅ 分区域统计已保存：", output_csv, "\n")
+
+
+
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(sp)
+
+# 🔹 可视化哪组数据
+df <- wt   # 或 wt
+group_label <- "WT"  # 改为 WT 也行
+
+# 🔹 读取多个多边形区域（从 Brain_Regions.csv 得到的）
+region_df <- read_csv("C:/2026/imagingpro/Brain_Regions_SNPC.csv")
+region_df <- region_df %>% rename(x = `axis-1`, y = `axis-0`)  # 改列名方便使用
+
+# 🔹 转为 SpatialPolygons 列表
+region_list <- region_df %>% group_by(index) %>% group_split()
+region_polygons <- lapply(region_list, function(region_df) {
+  coords <- region_df %>% select(x, y)
+  SpatialPolygons(list(Polygons(list(Polygon(coords)), ID = as.character(region_df$index[1]))))
+})
+
+# 🔹 合并成一个大 SpatialPolygons 对象（用于判断）
+all_regions <- do.call(rbind.SpatialPolygons, region_polygons)
+
+# 🔹 判断 DAPI 坐标是否落在任意区域内
+coords <- df %>% select(x = Location_Center_X, y = Location_Center_Y)
+points_sp <- SpatialPoints(coords)
+coords$inside <- !is.na(over(points_sp, all_regions))
+
+# 🔹 可视化：区域轮廓 + DAPI 点（着色是否在区域内）
+ggplot() +
+  geom_polygon(data = region_df, aes(x = x, y = y, group = index),
+               fill = NA, color = "black", linewidth = 1) +
+  geom_point(data = coords, aes(x = x, y = y, color = inside),
+             size = 1, alpha = 0.6) +
+  scale_color_manual(values = c("FALSE" = "red", "TRUE" = "green"),
+                     labels = c("Outside", "Inside"),
+                     name = "In Region") +
+  scale_y_reverse() +  # 让 y 向下（符合切片图像习惯）
+  coord_fixed() +
+  labs(title = paste("DAPI Cell Centers in", group_label, "Group"),
+       x = "X", y = "Y (Top → Bottom)") +
+  theme_minimal(base_size = 14)
+
+```
+```{r}
+library(dplyr)
+library(readr)
+library(sp)
+library(ggplot2)
+library(tidyr)
+
+# ==== 文件路径 ====
+wt_file <- "C:/2026/imagingpro/snpc_ana/WT/WTIdDAPI.csv"
+ko_file <- "C:/2026/imagingpro/snpc_ana/KO/KOIdDAPI.csv"
+region_file <- "C:/2026/imagingpro/Brain_Regions_SNpr.csv"
+output_plot <- "C:/2026/imagingpro/Regions_SNpr_Analysis.png"
+output_csv <- "C:/2026/imagingpro/Regions_SNpr_Analysis_Stats.csv"
+
+# ==== 读取数据 ====
+wt <- read_csv(wt_file)
+ko <- read_csv(ko_file)
+regions <- read_csv(region_file)
+
+# ==== 生成多个 SpatialPolygons ====
+region_list <- regions %>%
+  group_by(index) %>%
+  group_split()
+
+# 每个 index 对应一个 named list 元素
+region_polygons <- lapply(region_list, function(region_df) {
+  coords <- region_df %>% select(x = `axis-1`, y = `axis-0`)
+  SpatialPolygons(list(Polygons(list(Polygon(coords)), ID = as.character(region_df$index[1]))))
+})
+names(region_polygons) <- sapply(region_list, function(df) paste0("Region_", df$index[1]))
+
+# ==== 统计函数 ====
+calculate_stats_by_region <- function(df, label) {
+  results <- list()
+  coords <- df %>% select(x = Location_Center_X, y = Location_Center_Y)
+  points_sp <- SpatialPoints(coords)
+
+  for (i in seq_along(region_polygons)) {
+    region_name <- names(region_polygons)[i]
+    polygon_sp <- region_polygons[[i]]
+    inside <- !is.na(over(points_sp, polygon_sp))
+    inside_df <- df[inside, ]
+
+    total <- nrow(inside_df)
+    iba1_pos <- sum(inside_df$Children_idIba1_Count > 0)
+    hla_pos <- sum(inside_df$Children_idHLA_Count > 0)
+
+    iba1_ratio <- iba1_pos / total
+    hla_ratio <- hla_pos / total
+    hla_to_iba1 <- ifelse(iba1_pos > 0, hla_pos / iba1_pos, NA)
+
+    results[[region_name]] <- data.frame(
+      group = label,
+      region = region_name,
+      Iba1_Positive_Ratio = iba1_ratio,
+      HLA_Positive_Ratio = hla_ratio,
+      HLA_to_Iba1_Ratio = hla_to_iba1
+    )
+  }
+
+  do.call(rbind, results)
+}
+
+# ==== 计算 WT / KO ====
+res_wt <- calculate_stats_by_region(wt, "WT")
+res_ko <- calculate_stats_by_region(ko, "KO")
+
+combined <- bind_rows(res_wt, res_ko)
+
+# ==== 整理绘图数据 ====
+combined_long <- combined %>%
+  pivot_longer(cols = starts_with("Iba1"):starts_with("HLA_to"), names_to = "metric", values_to = "value")
+
+combined_long$metric <- factor(combined_long$metric,
+                          levels = c("Iba1_Positive_Ratio", "HLA_Positive_Ratio", "HLA_to_Iba1_Ratio"),
+                          labels = c("Iba1 Positive Ratio", "HLA Positive Ratio", "HLA / Iba1 Ratio"))
+
+# ==== 绘图 ====
+combined_long$group <- factor(combined_long$group, levels = c("WT", "KO"))
+
+p <- ggplot(combined_long, aes(x = group, y = value, fill = metric)) +
+  geom_bar(stat = "identity", position = position_dodge(), width = 0.7) +
+  geom_text(aes(label = round(value, 2)), 
+            position = position_dodge(width = 0.7), 
+            vjust = -0.5, size = 3) +
+  facet_wrap(~region) +
+  scale_fill_brewer(palette = "Set2", name = "Metric") +
+  labs(title = "SNpr",
+       x = "Group", y = "Ratio") +
+  theme_minimal(base_size = 14)
+
+ggsave(output_plot, p, width = 10, height = 6, dpi = 300)
+write_csv(combined, output_csv)
+
+cat("✅ 分区域图像已保存：", output_plot, "\n")
+cat("✅ 分区域统计已保存：", output_csv, "\n")
+
+
+
+```
+```{r}
+library(ggplot2)
+library(dplyr)
+library(sp)
+
+# 🔹 可视化哪组数据
+df <- wt   # 或 wt
+group_label <- "WT"  # 改为 WT 也行
+
+# 🔹 读取多个多边形区域（从 Brain_Regions.csv 得到的）
+region_df <- read_csv("C:/2026/imagingpro/Brain_Regions_SNpr.csv")
+region_df <- region_df %>% rename(x = `axis-1`, y = `axis-0`)  # 改列名方便使用
+
+# 🔹 转为 SpatialPolygons 列表
+region_list <- region_df %>% group_by(index) %>% group_split()
+region_polygons <- lapply(region_list, function(region_df) {
+  coords <- region_df %>% select(x, y)
+  SpatialPolygons(list(Polygons(list(Polygon(coords)), ID = as.character(region_df$index[1]))))
+})
+
+# 🔹 合并成一个大 SpatialPolygons 对象（用于判断）
+all_regions <- do.call(rbind.SpatialPolygons, region_polygons)
+
+# 🔹 判断 DAPI 坐标是否落在任意区域内
+coords <- df %>% select(x = Location_Center_X, y = Location_Center_Y)
+points_sp <- SpatialPoints(coords)
+coords$inside <- !is.na(over(points_sp, all_regions))
+
+# 🔹 可视化：区域轮廓 + DAPI 点（着色是否在区域内）
+ggplot() +
+  geom_polygon(data = region_df, aes(x = x, y = y, group = index),
+               fill = NA, color = "black", linewidth = 1) +
+  geom_point(data = coords, aes(x = x, y = y, color = inside),
+             size = 1, alpha = 0.6) +
+  scale_color_manual(values = c("FALSE" = "red", "TRUE" = "green"),
+                     labels = c("Outside", "Inside"),
+                     name = "In Region") +
+  scale_y_reverse() +  # 让 y 向下（符合切片图像习惯）
+  coord_fixed() +
+  labs(title = paste("DAPI Cell Centers in", group_label, "Group"),
+       x = "X", y = "Y (Top → Bottom)") +
+  theme_minimal(base_size = 14)
+
+```
+
+
+```{r}
+library(dplyr)
+library(readr)
+library(sp)
+library(ggplot2)
+library(tidyr)
+
+# ==== 文件路径 ====
+wt_file <- "C:/2026/imagingpro/snpc_ana/WT/WTIdDAPI.csv"
+ko_file <- "C:/2026/imagingpro/snpc_ana/KO/KOIdDAPI.csv"
+region_file <- "C:/2026/imagingpro/Brain_Regions_VTA.csv"
+output_plot <- "C:/2026/imagingpro/Regions_VTA_Analysis.png"
+output_csv <- "C:/2026/imagingpro/Regions_VTA_Analysis_Stats.csv"
+
+# ==== 读取数据 ====
+wt <- read_csv(wt_file)
+ko <- read_csv(ko_file)
+regions <- read_csv(region_file)
+
+# ==== 生成多个 SpatialPolygons ====
+region_list <- regions %>%
+  group_by(index) %>%
+  group_split()
+
+# 每个 index 对应一个 named list 元素
+region_polygons <- lapply(region_list, function(region_df) {
+  coords <- region_df %>% select(x = `axis-1`, y = `axis-0`)
+  SpatialPolygons(list(Polygons(list(Polygon(coords)), ID = as.character(region_df$index[1]))))
+})
+names(region_polygons) <- sapply(region_list, function(df) paste0("Region_", df$index[1]))
+
+# ==== 统计函数 ====
+calculate_stats_by_region <- function(df, label) {
+  results <- list()
+  coords <- df %>% select(x = Location_Center_X, y = Location_Center_Y)
+  points_sp <- SpatialPoints(coords)
+
+  for (i in seq_along(region_polygons)) {
+    region_name <- names(region_polygons)[i]
+    polygon_sp <- region_polygons[[i]]
+    inside <- !is.na(over(points_sp, polygon_sp))
+    inside_df <- df[inside, ]
+
+    total <- nrow(inside_df)
+    iba1_pos <- sum(inside_df$Children_idIba1_Count > 0)
+    hla_pos <- sum(inside_df$Children_idHLA_Count > 0)
+
+    iba1_ratio <- iba1_pos / total
+    hla_ratio <- hla_pos / total
+    hla_to_iba1 <- ifelse(iba1_pos > 0, hla_pos / iba1_pos, NA)
+
+    results[[region_name]] <- data.frame(
+      group = label,
+      region = region_name,
+      Iba1_Positive_Ratio = iba1_ratio,
+      HLA_Positive_Ratio = hla_ratio,
+      HLA_to_Iba1_Ratio = hla_to_iba1
+    )
+  }
+
+  do.call(rbind, results)
+}
+
+# ==== 计算 WT / KO ====
+res_wt <- calculate_stats_by_region(wt, "WT")
+res_ko <- calculate_stats_by_region(ko, "KO")
+
+combined <- bind_rows(res_wt, res_ko)
+
+# ==== 整理绘图数据 ====
+combined_long <- combined %>%
+  pivot_longer(cols = starts_with("Iba1"):starts_with("HLA_to"), names_to = "metric", values_to = "value")
+
+combined_long$metric <- factor(combined_long$metric,
+                          levels = c("Iba1_Positive_Ratio", "HLA_Positive_Ratio", "HLA_to_Iba1_Ratio"),
+                          labels = c("Iba1 Positive Ratio", "HLA Positive Ratio", "HLA / Iba1 Ratio"))
+
+# ==== 绘图 ====
+combined_long$group <- factor(combined_long$group, levels = c("WT", "KO"))
+
+p <- ggplot(combined_long, aes(x = group, y = value, fill = metric)) +
+  geom_bar(stat = "identity", position = position_dodge(), width = 0.7) +
+  geom_text(aes(label = round(value, 2)), 
+            position = position_dodge(width = 0.7), 
+            vjust = -0.5, size = 3) +
+  facet_wrap(~region) +
+  scale_fill_brewer(palette = "Set2", name = "Metric") +
+  labs(title = "VTA",
+       x = "Group", y = "Ratio") +
+  theme_minimal(base_size = 14)
+
+ggsave(output_plot, p, width = 10, height = 6, dpi = 300)
+write_csv(combined, output_csv)
+
+cat("✅ 分区域图像已保存：", output_plot, "\n")
+cat("✅ 分区域统计已保存：", output_csv, "\n")
+
+
+
+```
+
+
+```{r}
+library(dplyr)
+library(readr)
+library(sp)
+library(ggplot2)
+library(tidyr)
+
+# ==== 文件路径 ====
+wt_file <- "C:/2026/imagingpro/snpc_ana/WT/WTIdDAPI.csv"
+ko_file <- "C:/2026/imagingpro/snpc_ana/KO/KOIdDAPI.csv"
+region_file <- "C:/2026/imagingpro/Brain_Regions_MRN.csv"
+output_plot <- "C:/2026/imagingpro/Regions_MRN_Analysis.png"
+output_csv <- "C:/2026/imagingpro/Regions_MRN_Analysis_Stats.csv"
+
+# ==== 读取数据 ====
+wt <- read_csv(wt_file)
+ko <- read_csv(ko_file)
+regions <- read_csv(region_file)
+
+# ==== 生成多个 SpatialPolygons ====
+region_list <- regions %>%
+  group_by(index) %>%
+  group_split()
+
+# 每个 index 对应一个 named list 元素
+region_polygons <- lapply(region_list, function(region_df) {
+  coords <- region_df %>% select(x = `axis-1`, y = `axis-0`)
+  SpatialPolygons(list(Polygons(list(Polygon(coords)), ID = as.character(region_df$index[1]))))
+})
+names(region_polygons) <- sapply(region_list, function(df) paste0("Region_", df$index[1]))
+
+# ==== 统计函数 ====
+calculate_stats_by_region <- function(df, label) {
+  results <- list()
+  coords <- df %>% select(x = Location_Center_X, y = Location_Center_Y)
+  points_sp <- SpatialPoints(coords)
+
+  for (i in seq_along(region_polygons)) {
+    region_name <- names(region_polygons)[i]
+    polygon_sp <- region_polygons[[i]]
+    inside <- !is.na(over(points_sp, polygon_sp))
+    inside_df <- df[inside, ]
+
+    total <- nrow(inside_df)
+    iba1_pos <- sum(inside_df$Children_idIba1_Count > 0)
+    hla_pos <- sum(inside_df$Children_idHLA_Count > 0)
+
+    iba1_ratio <- iba1_pos / total
+    hla_ratio <- hla_pos / total
+    hla_to_iba1 <- ifelse(iba1_pos > 0, hla_pos / iba1_pos, NA)
+
+    results[[region_name]] <- data.frame(
+      group = label,
+      region = region_name,
+      Iba1_Positive_Ratio = iba1_ratio,
+      HLA_Positive_Ratio = hla_ratio,
+      HLA_to_Iba1_Ratio = hla_to_iba1
+    )
+  }
+
+  do.call(rbind, results)
+}
+
+# ==== 计算 WT / KO ====
+res_wt <- calculate_stats_by_region(wt, "WT")
+res_ko <- calculate_stats_by_region(ko, "KO")
+
+combined <- bind_rows(res_wt, res_ko)
+
+# ==== 整理绘图数据 ====
+combined_long <- combined %>%
+  pivot_longer(cols = starts_with("Iba1"):starts_with("HLA_to"), names_to = "metric", values_to = "value")
+
+combined_long$metric <- factor(combined_long$metric,
+                          levels = c("Iba1_Positive_Ratio", "HLA_Positive_Ratio", "HLA_to_Iba1_Ratio"),
+                          labels = c("Iba1 Positive Ratio", "HLA Positive Ratio", "HLA / Iba1 Ratio"))
+
+# ==== 绘图 ====
+combined_long$group <- factor(combined_long$group, levels = c("WT", "KO"))
+
+p <- ggplot(combined_long, aes(x = group, y = value, fill = metric)) +
+  geom_bar(stat = "identity", position = position_dodge(), width = 0.7) +
+  geom_text(aes(label = round(value, 2)), 
+            position = position_dodge(width = 0.7), 
+            vjust = -0.5, size = 3) +
+  facet_wrap(~region) +
+  scale_fill_brewer(palette = "Set2", name = "Metric") +
+  labs(title = "MRN",
+       x = "Group", y = "Ratio") +
+  theme_minimal(base_size = 14)
+
+ggsave(output_plot, p, width = 10, height = 6, dpi = 300)
+write_csv(combined, output_csv)
+
+cat("✅ 分区域图像已保存：", output_plot, "\n")
+cat("✅ 分区域统计已保存：", output_csv, "\n")
+
+
+
+```
