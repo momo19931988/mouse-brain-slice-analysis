@@ -14,6 +14,7 @@ This project aims to address the challenge of performing **batch-level quantific
 project/
 ├── README.md         # Project introduction (this file)
 ├── requirements.txt  # Python dependencies
+├── cellprofiler      # fluorescence signals coordinate extraction
 ├── analysis.R        # R script for statistical analysis
 ├── pipeline/         # Python scripts for image analysis
 │   ├── step1.py      # Channel separation
