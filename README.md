@@ -4,6 +4,7 @@ This repository contains a **standardized image analysis pipeline** for the quan
 The workflow integrates **Python** for preprocessing, image alignment, and data extraction with **R** for statistical analysis and visualization.  
 
 This project aims to address the challenge of performing **batch-level quantification** of brain slice fluorescence imaging, where differences in slice positioning, orientation, and brain region identification often hinder reproducible analysis.  
+<img width="536" height="205" alt="image" src="https://github.com/user-attachments/assets/f55a2a0a-f6b5-4844-ab7e-9b7b78dd43c0" />
 
 ---
 
