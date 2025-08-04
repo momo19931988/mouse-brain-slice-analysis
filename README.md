@@ -122,10 +122,10 @@ This launches a Tkinter-based interface for **one-click batch processing**, incl
 - 🔹 Step 4: Align images (SimpleITK)
 In this step, fluorescence channels are spatially aligned using the DAPI channel as a reference.
 
- - A template DAPI image is selected as the reference.
- - Each image stack (e.g., DAPI, TH, Iba1) is read.
- -  SimpleITK’s image registration is applied, using mutual information as the similarity metric and an Euler transform to correct for translation and rotation.
- - After alignment, all channels are resampled into the same coordinate space as the template.
+  A template DAPI image is selected as the reference.
+  Each image stack (e.g., DAPI, TH, Iba1) is read.
+  SimpleITK’s image registration is applied, using mutual information as the similarity metric and an Euler transform to correct for translation and rotation.
+  After alignment, all channels are resampled into the same coordinate space as the template.
 
 ✅ Output: aligned fluorescence channel images (e.g., *_channel1_aligned.tif, *_channel2_aligned.tif, …).
 
