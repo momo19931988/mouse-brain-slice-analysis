@@ -65,7 +65,7 @@ project/
 Clone the repository and install dependencies:
 ```bash
 git clone https://github.com/momo19931988/mouse-brain-slice-analysis.git
-cd mouse-brain-slice-analysis
+
 pip install -r requirements.txt
 ```
 
@@ -79,7 +79,7 @@ matplotlib
 scikit-learn
 tifffile
 cellprofiler-core
-tkinter        # usually built-in with Python
+tkinter      
 ```
 
 ---
@@ -123,8 +123,9 @@ This launches a Tkinter-based interface for **one-click batch processing**, incl
 
 - First, change the path in advance: image_path = Path("C:/*******/image9_channel1_aligned.tif"). Then, draw the region you want to analyze and select save selected layer to obtain the coordinates of the brain area of interest.
 ### Downstream Cellprofiler analysis
-```
+
 - After the preceding image processing steps, the fluorescence images can be used by analysis software such as CellProfiler to extract signal coordinates. (In later versions, this functionality will be considered for integration into the Python platform.
+```
 source("ihc.cpproj")
 ```
 ### Downstream R analysis
