@@ -123,6 +123,9 @@ This launches a Tkinter-based interface for **one-click batch processing**, incl
 ### Workflow for automated alignment of mouse brain slice images.
 <img width="527" height="794" alt="image" src="https://github.com/user-attachments/assets/5c192985-107b-427c-87e9-6b534691923b" />
 
+### napari 
+<img width="882" height="587" alt="image" src="https://github.com/user-attachments/assets/86009998-1726-4d29-a167-21dd8aa37355" />
+
 ### Downstream Cellprofiler analysis
 ```
 source("ihc.cpproj")
