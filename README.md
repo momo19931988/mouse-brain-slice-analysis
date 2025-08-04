@@ -31,13 +31,13 @@ project/
 ├── cellprofiler      # fluorescence signals coordinate extraction
 ├── analysis.Rmd      # R script for statistical analysis
 ├── pipeline/         # Python scripts for image analysis
-│   ├── step1.py      # Channel separation
-│   ├── step2.py      # Background subtraction
-│   ├── step3.py      # PCA-based rotation correction
-│   ├── step4.py      # Intensity normalization
-│   ├── step5.py      # Coordinate extraction
-│   ├── step6.py      # Region mapping
-│   └── step7.py      # Batch comparison & output
+│   ├── step1.py      # Adjust brain slice orientation
+│   ├── step2.py      # Standardize image size
+│   ├── step3.py      # Extract fluorescence channels (NMF)
+│   ├── step4.py      # Align images (SimpleITK)
+│   ├── step5.py      # Downsample images
+│   ├── step6.py      # Intensity normalization
+│   └── step7.py      # Extract brain region coordinates
 ├── gui/              # Graphical User Interface (Tkinter)
 │   └── GUI.py
 └── docs/             # Documentation and example images
@@ -118,9 +118,9 @@ This launches a Tkinter-based interface for **one-click batch processing**, incl
 ### Workflow for automated alignment of mouse brain slice images.
 <img width="527" height="794" alt="image" src="https://github.com/user-attachments/assets/5c192985-107b-427c-87e9-6b534691923b" />
 
-### napari 
+### Step7 Extract brain region coordinates
 <img width="882" height="587" alt="image" src="https://github.com/user-attachments/assets/86009998-1726-4d29-a167-21dd8aa37355" />
-
+First, change the path in advance: image_path = Path("C:/*******/image9_channel1_aligned.tif"). Then, draw the region you want to analyze and select save selected layer to obtain the coordinates of the brain area of interest.
 ### Downstream Cellprofiler analysis
 ```
 source("ihc.cpproj")
