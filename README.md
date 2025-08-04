@@ -120,6 +120,7 @@ This launches a Tkinter-based interface for **one-click batch processing**, incl
 
 ### Extract brain region coordinates(step7)
 <img width="882" height="587" alt="image" src="https://github.com/user-attachments/assets/86009998-1726-4d29-a167-21dd8aa37355" />
+
 - First, change the path in advance: image_path = Path("C:/*******/image9_channel1_aligned.tif"). Then, draw the region you want to analyze and select save selected layer to obtain the coordinates of the brain area of interest.
 ### Downstream Cellprofiler analysis
 ```
