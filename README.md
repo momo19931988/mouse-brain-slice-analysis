@@ -132,6 +132,9 @@ source("ihc.cpproj")
 ```R
 source("analysis.Rmd")
 ```
+- In the provided R script, you can link the extracted brain region coordinates with the fluorescence signal coordinates. The figure below shows the integrated DAPI coordinates (in red) from multiple brain slices, with the selected brain region for analysis highlighted in green.
+<img width="700" height="432" alt="背景1" src="https://github.com/user-attachments/assets/04d2f2d4-3e2e-4eff-b6ab-b35b7f0d936b" />
+
 
 Results include:
 - CSV tables with normalized intensity values (saved in `output/`)  
