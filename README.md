@@ -73,10 +73,11 @@ tkinter        # usually built-in with Python
 Required Cellprofiler:
 ```
 https://cellprofiler.org/releases
+```
+
 ---
 
 
-```
 ### R
 Required R packages:
 ```R
