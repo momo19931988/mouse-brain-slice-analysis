@@ -130,9 +130,6 @@ This project is released under the [MIT License](https://opensource.org/licenses
 ## ✨ Citation
 Until the formal publication of the manuscript, please cite this repository as:  
 
-> Chen M., Guo Q., *Automated Quantification of Fluorescence Signals in Mouse Brain Slices* (GitHub repository, 2025).  
-> URL: https://github.com/your-username/mouse-brain-slice-analysis  
-
 This section will be updated once the related article is published.  
 
 ---
