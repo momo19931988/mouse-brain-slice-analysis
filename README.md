@@ -83,9 +83,10 @@ BiocManager::install(c("clusterProfiler", "org.Mm.eg.db", "enrichplot"))
 ```bash
 python gui/GUI.py
 ```
-This launches a Tkinter-based interface for **one-click batch analysis**, including preprocessing, normalization, and export.
+This launches a Tkinter-based interface for **one-click batch processing**, including preprocessing, normalization, and export.
 
-<img width="803" height="634" alt="image" src="https://github.com/user-attachments/assets/939777e8-e108-48ec-995f-13aa1d9d74ef" />
+<img width="832" height="680" alt="image" src="https://github.com/user-attachments/assets/282a145f-7a84-4ea9-a212-5c23f621d048" />
+
 
 
 
