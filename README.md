@@ -119,6 +119,16 @@ This launches a Tkinter-based interface for **one-click batch processing**, incl
 
 - This process consists of three main steps: 1. Contour extraction – the outline of the brain slice is identified from the raw image. 2. Point cloud generation and principal component extraction – the contour is transformed into a set of points, and principal component analysis (PCA) is applied to determine the primary (PC1) and secondary (PC2) axes of variation. 3.Rotation correction – brain slices are rotated according to the PC1 axis to align the long axis horizontally, ensuring consistent orientation across samples.
 
+- 🔹 Step 4: Align images (SimpleITK)
+In this step, fluorescence channels are spatially aligned using the DAPI channel as a reference.
+
+ - A template DAPI image is selected as the reference.
+ - Each image stack (e.g., DAPI, TH, Iba1) is read.
+ -  SimpleITK’s image registration is applied, using mutual information as the similarity metric and an Euler transform to correct for translation and rotation.
+ - After alignment, all channels are resampled into the same coordinate space as the template.
+
+✅ Output: aligned fluorescence channel images (e.g., *_channel1_aligned.tif, *_channel2_aligned.tif, …).
+
 ### Extract brain region coordinates(step7)
 <img width="882" height="587" alt="image" src="https://github.com/user-attachments/assets/86009998-1726-4d29-a167-21dd8aa37355" />
 
