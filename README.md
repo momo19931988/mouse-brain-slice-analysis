@@ -183,10 +183,4 @@ Until the formal publication of the manuscript, please cite this repository as:
 
 This section will be updated once the related article is published.  
 
-In addition, since AutoSliceQuant makes use of **napari** for ROI extraction and visualization,  
-please also cite napari as recommended by its authors:
-
-napari contributors (2019). napari: a multi-dimensional image viewer for python.  
-Zenodo. https://doi.org/10.5281/zenodo.3555620
-
 ---
