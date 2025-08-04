@@ -48,7 +48,7 @@ project/
 ### Python
 Clone the repository and install dependencies:
 ```bash
-git clone https://github.com/your-username/mouse-brain-slice-analysis.git
+git clone https://github.com/momo19931988/mouse-brain-slice-analysis.git
 cd mouse-brain-slice-analysis
 pip install -r requirements.txt
 ```
