@@ -297,10 +297,16 @@ def step6_main():
 
 # ---------------- Step7 Extract brain region coordinates ----------------
 def step7_main():
-    image_path = Path("C:/2026/imagingpro/snpc_ana/WT/image9_channel1_aligned.tif")
-    if not image_path.exists():
-        print("❌ Example image not found"); return
-    image = io.imread(str(image_path))
+    root = tk.Tk(); root.withdraw()
+    image_path = filedialog.askopenfilename(
+        title="Select aligned DAPI image (e.g., *_channel1_aligned.tif)",
+        filetypes=[("TIFF files", "*.tif *.tiff")]
+    )
+    if not image_path:
+        print("❌ No image selected")
+        return
+
+    image = io.imread(image_path)
     viewer = napari.Viewer()
     viewer.add_image(image, name="DAPI", colormap='gray')
     viewer.add_shapes(name="Brain_Regions", shape_type='polygon', edge_color='cyan', face_color='transparent')
