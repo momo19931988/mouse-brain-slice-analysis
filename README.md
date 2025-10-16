@@ -48,7 +48,7 @@ project/
 
 ---
 
-## 🔹 Features
+##  Features
 - **Channel separation** for fluorescence images (e.g., DAPI)  
 - **PCA-based slice alignment** to correct orientation differences  
 - **Background subtraction & intensity normalization** across groups  
@@ -60,7 +60,7 @@ project/
 
 ---
 
-## 🚀 Installation
+##  Installation
 
 ### Python
 Clone the repository and install dependencies:
@@ -103,7 +103,7 @@ install.packages(c("ggplot2", "dplyr","readr","sp","tidyr"))
 
 ---
 
-## 🛠 Usage
+##  Usage
 
 ### Run the GUI
 ```bash
